@@ -4,5 +4,9 @@
 
 use core\Autoloader;
 
+// Autoloader
 $loader = new Autoloader();
 $loader->registerClasses();
+
+// Database
+new Database();
