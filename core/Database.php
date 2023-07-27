@@ -4,7 +4,9 @@ class Database {
 	private $db;
 
 	public function __construct() {
-		$this->connect();
+		if(!$this->db) {
+			$this->connect();
+		}
 	}
 
 	public function getInstance() {
@@ -17,7 +19,5 @@ class Database {
 		if($this->db->connect_error) {
 			throw new Exception("Could not connect to mysql db.", 1);
 		}
-
-		var_dump($this->db);
 	}
 }
