@@ -1,0 +1,12 @@
+{
+    "name": "tounland/core_php",
+    "description": "Core Backend Framework in PHP",
+    "type": "project",
+    "authors": [
+        {
+            "name": "ColeJJ",
+            "email": "torben.unland@gmail.com"
+        }
+    ],
+    "require": {}
+}
