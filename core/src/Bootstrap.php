@@ -2,7 +2,8 @@
 
 // this will be the the initial file to load 
 
-use core\Autoloader;
+use Core\Autoloader;
+use Core\Database;
 
 // Autoloader
 $loader = new Autoloader();
