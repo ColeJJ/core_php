@@ -4,6 +4,7 @@
 
 use Core\Autoloader;
 use Core\Database;
+use Model\User;
 
 // Autoloader
 $loader = new Autoloader();

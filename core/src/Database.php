@@ -32,6 +32,8 @@ class Database {
 				'prefix' => Config::$DB_PREFIX,
 		]);
 
+		$capsule->bootEloquent();
+
 		// TU!: das hier noch löschen wenn nicht mehr notwendig
 		// $this->db = new mysqli(Config::$DB_HOST, Config::$DB_USER, Config::$DB_PASSWORD, Config::$DB_DB);
 		//
