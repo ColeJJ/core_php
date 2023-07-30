@@ -33,12 +33,5 @@ class Database {
 		]);
 
 		$capsule->bootEloquent();
-
-		// TU!: das hier noch löschen wenn nicht mehr notwendig
-		// $this->db = new mysqli(Config::$DB_HOST, Config::$DB_USER, Config::$DB_PASSWORD, Config::$DB_DB);
-		//
-		// if($this->db->connect_error) {
-		// 	throw new Exception("Could not connect to mysql db.", 1);
-		// }
 	}
 }
