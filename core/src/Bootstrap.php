@@ -6,8 +6,7 @@ use Core\Autoloader;
 use Core\Database\Database;
 
 // Autoloader
-$loader = new Autoloader();
-$loader->registerClasses();
+Autoloader::registerClasses();
 
 // Database
 new Database();

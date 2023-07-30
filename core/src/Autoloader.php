@@ -4,7 +4,7 @@ namespace Core;
 
 class Autoloader {
 
-	public function registerClasses() {
+	public static function registerClasses() {
 		spl_autoload_register(function($class) {
 			$class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
 			$class_src = substr_replace($class, "src/", strpos($class, '/') + 1, 0);
@@ -17,10 +17,10 @@ class Autoloader {
 
 		});
 
-		$this->registerPackages();
+		self::registerPackages();
 	}	
 
-	public function registerPackages() {
+	private static function registerPackages() {
 		require_once $_SERVER["DOCUMENT_ROOT"]."/vendor/autoload.php";
 	} 
 }
