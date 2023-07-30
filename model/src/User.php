@@ -2,9 +2,22 @@
 
 namespace Model;
 
-use Illuminate\Database\Eloquent\Model;
+use Core\BaseModel;
+use Core\Database\ORMMeta;
 
-class User extends Model{
-	protected $table = 'users';	
-	protected $fillable = ['name', 'email', 'password'];
+class User implements BaseModel {
+
+	public function defineORM(): ORMMeta
+	{
+		$meta = new ORMMeta();
+		$meta->tablename = "users";
+		$meta->columns = [
+			"username" => "string",
+			"password" => "string",
+			"email" => "string"
+		];  
+
+		return $meta;
+	}
+
 }
