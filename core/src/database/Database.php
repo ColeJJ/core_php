@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace Core\Database;
 
 use Config\Config; 
 use Illuminate\Database\Capsule\Manager as Capsule;

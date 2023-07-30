@@ -3,8 +3,7 @@
 // this will be the the initial file to load 
 
 use Core\Autoloader;
-use Core\Database;
-use Model\User;
+use Core\Database\Database;
 
 // Autoloader
 $loader = new Autoloader();
