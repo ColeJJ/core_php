@@ -1,6 +1,7 @@
 <?php
 
 use Core\BaseModel;
+use Core\Database\Database;
 use Model\ModelRessources;
  
 require_once __DIR__."/../../init.php";
@@ -17,5 +18,6 @@ foreach ($modelClasses as $class) {
 	$tablename = $modelMeta->tablename;
 	$columns = $modelMeta->columns;
 
-	// TU!: in Database.php muss es funktionen zum anlegen von tabelle geben
+	// TU!: write createTable logic in Database.php 
+	Database::createTable($modelMeta);
 }

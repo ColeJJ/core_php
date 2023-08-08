@@ -7,28 +7,32 @@ use Exception;
 use mysqli;
 
 class Database {
-	// TU!: aktuell ist das hier Instanz basiert, ich will hier aber einen Singleton -> wir müssen die Logik hier noch iwie umbauen
-	private $db;
+	private static $db = null;
 
 	public function __construct() {
-		if(!$this->db) {
+		if(!self::$db) {
 			$this->connect();
 		}
 	}
 
-	private function connect() {
-		$this->db = new mysqli(Config::$DB_HOST, Config::$DB_USER, Config::$DB_PASSWORD, Config::$DB_DB);
-		if($this->db->connect_error) {
+	private static function connect() {
+		self::$db = new mysqli(Config::$DB_HOST, Config::$DB_USER, Config::$DB_PASSWORD, Config::$DB_DB);
+		if(self::$db->connect_error) {
 			throw new Exception("Could not connect to mysql db.", 1);
 		}
 	}
 
-	public function getInstance() {
-		return $this->db;
+	public static function getInstance() {
+		if (self::$db == null) {
+			self::$db = self::connect();
+		}
+
+		return self::$db;
 	}
 
-	public function createTable(ORMMeta $meta) {
-		var_dump($this->db);
+	// TU: function to create db tables
+	public static function createTable(ORMMeta $meta) {
+		var_dump(self::$db);
 	}
 
 }
