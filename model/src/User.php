@@ -12,9 +12,9 @@ class User implements BaseModel {
 		$meta = new ORMMeta();
 		$meta->tablename = "users";
 		$meta->columns = [
-			"username" => "string",
-			"password" => "string",
-			"email" => "string"
+			"username" => "VARCHAR(30)",
+			"password" => "VARCHAR(30)",
+			"email" => "VARCHAR(50)"
 		];  
 
 		return $meta;
