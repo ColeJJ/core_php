@@ -30,16 +30,20 @@ class Database {
 		return self::$db;
 	}
 
+	public static function runOrm(ORMMeta $meta) {
+		self::createTableWithMetadata($meta);
+		self::setUniqueColumns();
+	}
+
 	public static function createTableWithMetadata(ORMMeta $meta) {
 		$tablename = $meta->tablename;
 		$columns = $meta->columns;
 
-		// TU!1: call mysql function to create table with tablename and columns 
-		// TU!: hier noch DB Transaktion start? 
+		// TU?: call mysql function to create table with tablename and columns 
+		// TU?: hier noch DB Transaktion start? 
 		$sql = "CREATE TABLE ".$tablename." (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY";
 
 		foreach ($columns as $column => $dataType) {
-			// TU!: hier noch params wie NOT NULL automatisieren 
 			$sql = $sql . ", ";
 			$sql = $sql . $column . " " . $dataType . " NOT NULL";
 		}
@@ -52,7 +56,10 @@ class Database {
 			echo "Error creating table: " . self::$db->error;
 		}
 
-		// TU!: hier noch DB Transaktion ende? 
+		// TU?: hier noch DB Transaktion ende? 
 	}
+
+	// TU!
+	public static function setUniqueColumns()
 
 }

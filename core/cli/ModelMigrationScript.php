@@ -18,6 +18,5 @@ foreach ($modelClasses as $class) {
 	$tablename = $modelMeta->tablename;
 	$columns = $modelMeta->columns;
 
-	// TU!1: write createTable logic in Database.php 
-	Database::createTableWithMetadata($modelMeta);
+	Database::runOrm($modelMeta);
 }

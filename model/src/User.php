@@ -3,6 +3,7 @@
 namespace Model;
 
 use Core\BaseModel;
+use Core\Database\Column;
 use Core\Database\ORMMeta;
 
 class User implements BaseModel {
@@ -11,15 +12,13 @@ class User implements BaseModel {
 	{
 		$meta = new ORMMeta();
 		$meta->tablename = "users";
-		// $meta->columns = [
-		// 	// TU!: schauen, ob man Instanziierung und prop assigning in eins machen kann, sonst xml definition und nicht in einer model.php
-		// 	new Column()->setName("user"),
-		// ]
 		$meta->columns = [
 			"username" => "VARCHAR(30)",
 			"password" => "VARCHAR(30)",
 			"email" => "VARCHAR(50)"
 		];  
+		TU!: hier können wir columns unique setzen
+		$meta->unique = [];
 
 		return $meta;
 	}
