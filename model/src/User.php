@@ -3,7 +3,6 @@
 namespace Model;
 
 use Core\BaseModel;
-use Core\Database\Column;
 use Core\Database\ORMMeta;
 
 class User implements BaseModel {
@@ -17,8 +16,7 @@ class User implements BaseModel {
 			"password" => "VARCHAR(30)",
 			"email" => "VARCHAR(50)"
 		];  
-		TU!: hier können wir columns unique setzen
-		$meta->unique = [];
+		$meta->unique = ["email"];
 
 		return $meta;
 	}
