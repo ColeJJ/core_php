@@ -55,7 +55,7 @@ class Database {
 		$sql = $sql . ")";
 
 		if (self::$db->query($sql) === TRUE) {
-			echo "Table created or updated successfully\n";
+			echo "Table ". $tablename . " created or updated successfully\n";
 		} else {
 			echo "Error creating or updating table: " . self::$db->error;
 		}
@@ -109,13 +109,16 @@ class Database {
 		return in_array($column, array_keys($columns));
 	}
 
-	private static function checkColumnsExist(array $columns, array $needleColumns): bool {
-		foreach ($needleColumns as $col) {
-			if(!self::checkColumnExist($columns, $col)) {
-				echo "Column ". $col . " not found. ";
-				return false;
+	private static function checkColumnsExist(array $columns, array|null $needleColumns): bool {
+		if($needleColumns) {
+			foreach ($needleColumns as $col) {
+				if(!self::checkColumnExist($columns, $col)) {
+					echo "Column ". $col . " not found. ";
+					return false;
+				}
 			}
 		}
+
 		return true;
 	}
 }
