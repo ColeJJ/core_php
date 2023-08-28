@@ -4,6 +4,7 @@ namespace Model;
 
 use Core\BaseModel;
 use Core\Database\ORMMeta;
+use Core\Database\SQL;
 
 class User implements BaseModel {
 
@@ -11,15 +12,18 @@ class User implements BaseModel {
 	{
 		$meta = new ORMMeta();
 		$meta->tablename = "users";
+		// TU?: SQL Class with consts providing this data classes
 		$meta->columns = [
-			"username" => "VARCHAR(30)",
-			"password" => "VARCHAR(30)",
-			"email" => "VARCHAR(50)"
+			"username" => SQL::VARCHAR30,
+			"password" => SQL::VARCHAR30,
+			"email" => SQL::VARCHAR50,
+			"groupID" => SQL::INT,
 		];
-		// TU!: what if we parse a column string which is not given here
 		$meta->unique = ["emails"];
 		// TU!: setting fks columns
-		// $meta->fk = ["email"];
+		// $meta->fk = [
+		// 	"email" => ""
+		// ];
 
 		return $meta;
 	}
