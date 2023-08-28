@@ -15,8 +15,11 @@ class User implements BaseModel {
 			"username" => "VARCHAR(30)",
 			"password" => "VARCHAR(30)",
 			"email" => "VARCHAR(50)"
-		];  
-		$meta->unique = ["email"];
+		];
+		// TU!: what if we parse a column string which is not given here
+		$meta->unique = ["emails"];
+		// TU!: setting fks columns
+		// $meta->fk = ["email"];
 
 		return $meta;
 	}

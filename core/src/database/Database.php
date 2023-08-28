@@ -65,12 +65,14 @@ class Database {
 	public static function setUniqueColumns(ORMMeta $meta) {
 		$tablename = $meta->tablename;
 		$uniqueCols = $meta->unique;
-
+		
+		if(!self::checkColumnsExist($meta->columns, $uniqueCols)) {
+			echo "Determined unique column not given in table: ". $tablename . ".";
+			return;
+		};
 		self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::UNIQUE);
 		
 		if($uniqueCols && count($uniqueCols) > 0) {
-			// delete unqiue constraint 
-
 			// add new updated unique constraint
 			$sql = "ALTER TABLE ". $tablename . " ADD CONSTRAINT unique_". $tablename . " UNIQUE ("; 
 
@@ -101,5 +103,20 @@ class Database {
 				echo "Error deleting constraint: " . self::$db->error;
 			}
 		}
+	}
+
+	private static function checkColumnExist(array $columns, string $column) {
+		return in_array($column, $columns);
+	}
+
+	private static function checkColumnsExist(array $columns, array $needleColumns): bool {
+		foreach ($needleColumns as $col) {
+			# code...
+			if(!self::checkColumnExist($columns, $col)) {
+				echo "Column ". $col . " not found. ";
+				return false;
+			}
+		}
+		return true;
 	}
 }
