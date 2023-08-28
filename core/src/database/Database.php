@@ -106,12 +106,11 @@ class Database {
 	}
 
 	private static function checkColumnExist(array $columns, string $column) {
-		return in_array($column, $columns);
+		return in_array($column, array_keys($columns));
 	}
 
 	private static function checkColumnsExist(array $columns, array $needleColumns): bool {
 		foreach ($needleColumns as $col) {
-			# code...
 			if(!self::checkColumnExist($columns, $col)) {
 				echo "Column ". $col . " not found. ";
 				return false;
