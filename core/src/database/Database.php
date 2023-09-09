@@ -8,6 +8,7 @@ use mysqli;
 
 enum CONSTRAINT_PREFIXES: string {
 	case UNIQUE = "unique_";
+	case NOTNULL = "notnull_";
 }
 
 class Database {
@@ -37,6 +38,7 @@ class Database {
 	public static function runOrm(ORMMeta $meta) {
 		self::createTableWithMetadata($meta);
 		self::setUniqueColumns($meta);
+		self::setNotNullColumn($meta);
 	}
 
 	public static function createTableWithMetadata(ORMMeta $meta) {
@@ -49,7 +51,7 @@ class Database {
 
 		foreach ($columns as $column => $dataType) {
 			$sql = $sql . ", ";
-			$sql = $sql . $column . " " . $dataType . " NOT NULL";
+			$sql = $sql . $column . " " . $dataType;
 		}
 
 		$sql = $sql . ")";
@@ -91,6 +93,46 @@ class Database {
 		}
 	}
 
+	public static function setNotNullColumn(ORMMeta $meta) {
+		$tablename = $meta->tablename;
+		$columns = $meta->columns;
+		$notNullColumns = $meta->notNull;
+
+		if(!self::checkColumnsExist($meta->columns, $notNullColumns)) {
+			echo "Determined not nullable column not given in table: ". $tablename . ".";
+			return;
+		};
+
+		if($notNullColumns && count($notNullColumns) > 0) {
+			$nullColumns = $columns;
+			foreach ($notNullColumns as $col) {
+				unset($nullColumns[$col]);
+			}
+
+			// add new updated unique constraint
+			$sql = "ALTER TABLE ". $tablename . " "; 
+
+			foreach ($notNullColumns as $col) {
+				// TU!: PostgreSQL Query sieht so aus: ALTER COLUMN spaltenname SET NOT NULL; 
+				$sql = $sql . "MODIFY COLUMN " . $col . " " . $columns[$col] . " " . "NOT NULL,";
+			}
+
+			foreach ($nullColumns as $col => $value) {
+				// TU!: PostgreSQL Query sieht so aus: ALTER COLUMN spaltenname DROP NOT NULL; 
+				$sql = $sql . "MODIFY COLUMN " . $col . " " . $value . " NULL,";
+			}
+			
+			$sql = rtrim($sql, ",");
+			$sql = $sql . ";";
+
+			if (self::$db->query($sql) === TRUE) {
+				echo "Set nullable columns successfully\n";
+			} else {
+				echo "Error setting nullable columns: " . self::$db->error;
+			}
+		}
+	}
+
 	private static function deleteConstraintIfGiven(string $tablename, CONSTRAINT_PREFIXES $contraint_prefix) {
 		$constraint_sql = "SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = 'UNIQUE' AND TABLE_NAME = '$tablename' AND CONSTRAINT_NAME = 'unique_$tablename'";
 		$foundConstraints = self::$db->query($constraint_sql);
@@ -105,14 +147,14 @@ class Database {
 		}
 	}
 
-	private static function checkColumnExist(array $columns, string $column) {
+	private static function checkSingleColumnExist(array $columns, string $column) {
 		return in_array($column, array_keys($columns));
 	}
 
 	private static function checkColumnsExist(array $columns, array|null $needleColumns): bool {
 		if($needleColumns) {
 			foreach ($needleColumns as $col) {
-				if(!self::checkColumnExist($columns, $col)) {
+				if(!self::checkSingleColumnExist($columns, $col)) {
 					echo "Column ". $col . " not found. ";
 					return false;
 				}

@@ -21,11 +21,11 @@ class User implements BaseModel {
 		];
 		$meta->unique = ["email"];
 		// TU!: setting not null
-		// $meta->notNull = ...
+		$meta->notNull = ["username", "password"]; 
 		// TU!: setting fks columns
-		$meta->fk = [
-			"groupID" => ["tablename" => "groups", "column" => "ID"] 
-		];
+		// $meta->fk = [
+		// 	"groupID" => ["tablename" => "groups", "column" => "ID"] 
+		// ];
 
 		return $meta;
 	}
