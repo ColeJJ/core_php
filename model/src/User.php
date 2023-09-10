@@ -20,12 +20,11 @@ class User implements BaseModel {
 			"groupID" => SQL::INT60,
 		];
 		$meta->unique = ["email"];
-		// TU!: setting not null
 		$meta->notNull = ["username", "password"]; 
 		// TU!: setting fks columns
-		// $meta->fk = [
-		// 	"groupID" => ["tablename" => "groups", "column" => "ID"] 
-		// ];
+		$meta->fk = [
+			"groupID" => ["tablename" => "usergroups", "column" => "ID"] 
+		];
 
 		return $meta;
 	}
