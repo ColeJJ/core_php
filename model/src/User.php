@@ -17,13 +17,14 @@ class User implements BaseModel {
 			"username" => SQL::VARCHAR30,
 			"password" => SQL::VARCHAR30,
 			"email" => SQL::VARCHAR50,
-			"groupID" => SQL::INT60,
+			"groupID" => SQL::INT60_UNSIGNED,
+			"groupID2" => SQL::INT60_UNSIGNED,
 		];
 		$meta->unique = ["email"];
 		$meta->notNull = ["username", "password"]; 
-		// TU!: setting fks columns
 		$meta->fk = [
-			"groupID" => ["tablename" => "usergroups", "column" => "ID"] 
+			"groupID" => ["tablename" => "usergroups", "column" => "id"], 
+			"groupID2" => ["tablename" => "usergroups", "column" => "id"] 
 		];
 
 		return $meta;

@@ -73,7 +73,7 @@ class Database {
 			echo "Determined unique column not given in table: ". $tablename . ".";
 			return;
 		};
-		self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::UNIQUE, SQL::UNIQUE);
+		self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::UNIQUE, SQL::CONSTRAINT_TYPE_UNIQUE);
 		
 		if($uniqueCols && count($uniqueCols) > 0) {
 			// add new updated unique constraint
@@ -122,7 +122,7 @@ class Database {
 				// TU: PostgreSQL Query sieht so aus: ALTER COLUMN spaltenname DROP NOT NULL; 
 				$sql = $sql . "MODIFY COLUMN " . $col . " " . $value . " NULL,";
 			}
-			
+		
 			$sql = rtrim($sql, ",");
 			$sql = $sql . ";";
 
@@ -138,17 +138,29 @@ class Database {
 		$tablename = $meta->tablename;
 		$fks = $meta->fk;
 
+		if(!$fks) {
+			return;
+		}
+
 		if(!self::checkColumnsExist($meta->columns, array_keys($fks))) {
 			echo "Determined fk column not given in table: ". $tablename . ".";
 			return;
 		};
-		// self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::FK, SQL::FK);
+
+		self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::FK, SQL::CONSTRAINT_TYPE_FK);
 		
-		if($fks && count($fks) > 0) {
+		if(count($fks) > 0) {
 			// add new updated unique constraint
 			$sql = "ALTER TABLE ". $tablename; 
 
 			$fk_contraint_count = 1;
+			// SQL: ALTER TABLE aa
+			// ADD CONSTRAINT fk_aa_to_bb
+			// FOREIGN KEY (a)
+			// REFERENCES bb(ID),
+			// ADD CONSTRAINT fk_aa_to_bb2
+			// FOREIGN KEY (b)
+			// REFERENCES bb(ID2);
 			foreach ($fks as $col => $value) {
 				$sql = $sql . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
 				" FOREIGN KEY ($col)" . 
@@ -167,12 +179,18 @@ class Database {
 		}
 	}
 
-	private static function deleteConstraintIfGiven(string $tablename, CONSTRAINT_PREFIXES $contraint_prefix, string $constraint_prop) {
-		$constraint_sql = "SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = '$constraint_prop' AND TABLE_NAME = '$tablename' AND CONSTRAINT_NAME = 'unique_$tablename'";
-		$foundConstraints = self::$db->query($constraint_sql);
+	private static function deleteConstraintIfGiven(string $tablename, CONSTRAINT_PREFIXES $contraint_prefix, string $constraint_type) {
+		$constraint_sql = "SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = '$constraint_type' AND TABLE_NAME = '$tablename' AND TABLE_SCHEMA = '". Config::$DB_DB."'";
+		$foundConstraints = self::$db->query($constraint_sql, MYSQLI_USE_RESULT)->fetch_assoc();
+		$constraintName = $foundConstraints['CONSTRAINT_NAME'];
+		$constraintType = $foundConstraints['CONSTRAINT_TYPE'];
 
-		if ($foundConstraints && $foundConstraints->num_rows > 0) {
-			$delete_sql = "ALTER TABLE ". $tablename . " DROP KEY " . $contraint_prefix->value . $tablename .";";	
+		if ($constraintName) {
+			if($constraintType === SQL::CONSTRAINT_TYPE_FK) {
+				$delete_sql = "ALTER TABLE ". $tablename . " DROP FOREIGN KEY " . $constraintName .";";	
+			} else {
+				$delete_sql = "ALTER TABLE ". $tablename . " DROP KEY " . $constraintName .";";	
+			}
 			if(self::$db->query($delete_sql) === TRUE) {
 				echo "Deleted unique constraint successfully\n";
 			} else {
