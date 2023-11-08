@@ -124,7 +124,7 @@ class Database {
 			echo "Determined unique column not given in table: ". $tablename . ".";
 			return;
 		};
-		self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::UNIQUE, SQL::CONSTRAINT_TYPE_UNIQUE);
+		self::deleteConstraintsIfGiven($tablename, SQL::CONSTRAINT_TYPE_UNIQUE);
 		
 		if($uniqueCols && count($uniqueCols) > 0) {
 			// add new updated unique constraint
@@ -198,7 +198,7 @@ class Database {
 			return;
 		};
 
-		self::deleteConstraintIfGiven($tablename, CONSTRAINT_PREFIXES::FK, SQL::CONSTRAINT_TYPE_FK);
+		self::deleteConstraintsIfGiven($tablename, SQL::CONSTRAINT_TYPE_FK);
 		
 		if(count($fks) > 0) {
 			// add new updated unique constraint
@@ -221,22 +221,24 @@ class Database {
 		}
 	}
 
-	private static function deleteConstraintIfGiven(string $tablename, CONSTRAINT_PREFIXES $contraint_prefix, string $constraint_type) {
-		$constraint_sql = "SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = '$constraint_type' AND TABLE_NAME = '$tablename' AND TABLE_SCHEMA = '". Config::$DB_DB."'";
-		$foundConstraints = self::$db->query($constraint_sql, MYSQLI_USE_RESULT)->fetch_assoc();
-		$constraintName = $foundConstraints['CONSTRAINT_NAME'];
-		$constraintType = $foundConstraints['CONSTRAINT_TYPE'];
+	private static function deleteConstraintsIfGiven(string $tablename, string $constraint_type) {
+		$constraint_sql = "SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = '$constraint_type' AND TABLE_NAME = '$tablename' AND TABLE_SCHEMA = '". Config::$DB_DB."'";
+		$foundConstraints = self::$db->query($constraint_sql, MYSQLI_USE_RESULT)->fetch_all(MYSQLI_ASSOC);
 
-		if ($constraintName) {
-			if($constraintType === SQL::CONSTRAINT_TYPE_FK) {
-				$delete_sql = "ALTER TABLE ". $tablename . " DROP FOREIGN KEY " . $constraintName .";";	
-			} else {
-				$delete_sql = "ALTER TABLE ". $tablename . " DROP KEY " . $constraintName .";";	
-			}
-			if(self::$db->query($delete_sql) === TRUE) {
-				echo "Deleted unique constraint successfully\n";
-			} else {
-				echo "Error deleting constraint: " . self::$db->error;
+		if ($foundConstraints) {
+			foreach ($foundConstraints as $constraint) {
+				$constraintName = $constraint['CONSTRAINT_NAME'];
+				$constraintType = $constraint['CONSTRAINT_TYPE'];
+
+				if($constraintType === SQL::CONSTRAINT_TYPE_FK) {
+					$delete_sql = "ALTER TABLE ". $tablename . " DROP FOREIGN KEY " . $constraintName .";";	
+				} else {
+					$delete_sql = "ALTER TABLE ". $tablename . " DROP KEY " . $constraintName .";";	
+				}
+
+				if(self::$db->query($delete_sql) === TRUE) {
+					echo "Deleted constraint '$constraintName' successfully\n";
+				}
 			}
 		}
 	}
