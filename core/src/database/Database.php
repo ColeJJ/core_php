@@ -27,6 +27,26 @@ class Database {
 		}
 	}
 
+	private static function getColumnsOfTable(string $tablename): array {
+		$sql = "
+			SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+			WHERE TABLE_SCHEMA = '". Config::$DB_DB . "' 
+			AND TABLE_NAME =  '$tablename'";
+		$dbColumns = self::$db->query($sql)->fetch_all(MYSQLI_ASSOC);
+		$dbColumns = array_map(function ($column){
+			return $column['COLUMN_NAME'];
+		}, $dbColumns);
+		return $dbColumns;
+	}
+
+	private static function getDeletableColumns(string $tablename, array $columns) {
+		$dbColumns = self::getColumnsOfTable($tablename);
+		$compareCols = array_keys($columns);
+		array_push($compareCols, 'id');
+		$deletableCols = array_diff($dbColumns, $compareCols);
+		return $deletableCols;
+	}
+
 	public static function getInstance() {
 		if (self::$db == null) {
 			self::$db = self::connect();
@@ -36,33 +56,64 @@ class Database {
 	}
 
 	public static function runOrm(ORMMeta $meta) {
-		self::createTableWithMetadata($meta);
+		self::syncTable($meta);
 		self::setUniqueColumns($meta);
 		self::setNotNullColumn($meta);
 		self::setFks($meta);
 	}
 
-	public static function createTableWithMetadata(ORMMeta $meta) {
+	public static function syncTable(ORMMeta $meta) {
 		$tablename = $meta->tablename;
 		$columns = $meta->columns;
 
-		// TU?: call mysql function to create table with tablename and columns 
-		// TU?: hier noch DB Transaktion start? 
-		$sql = "CREATE TABLE IF NOT EXISTS ".$tablename." (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY";
+		$createSQL = "CREATE TABLE IF NOT EXISTS ".$tablename." (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY);";
 
-		foreach ($columns as $column => $dataType) {
-			$sql = $sql . ", ";
-			$sql = $sql . $column . " " . $dataType;
+		if (self::$db->query($createSQL)) {
+			echo "Checked and created Table ". $tablename . " successfully if not exists.\n";
 		}
 
-		$sql = $sql . ")";
-
-		if (self::$db->query($sql) === TRUE) {
-			echo "Table ". $tablename . " created or updated successfully\n";
-		} else {
-			echo "Error creating or updating table: " . self::$db->error;
+		// compare columns in DB with $meta columns -> delete alle, die nicht enthalten sind
+		$deleteColumns = self::getDeletableColumns($tablename, $columns);
+		if($deleteColumns) {
+			$deleteSQL = "ALTER TABLE $tablename DROP COLUMN";
+			foreach ($deleteColumns as $col) {
+				$deleteSQL = $deleteSQL . " $col,";
+			}
+			$deleteSQL = rtrim($deleteSQL, ",");
+			$deleteSQL = $deleteSQL . ";";
+			if(self::$db->query($deleteSQL)) {
+				echo "Not anymore exisiting Columns successfully deleted\n";
+			}
 		}
-		// TU?: hier noch DB Transaktion ende? 
+
+		foreach ($columns as $column => $colType) {
+			$columnSQL = "SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$tablename' AND TABLE_SCHEMA = '". Config::$DB_DB . "' AND COLUMN_NAME = '$column';";
+			$foundColumn = self::$db->query($columnSQL)->fetch_assoc();
+			$existingColName = $foundColumn['COLUMN_NAME'];
+			$existingColType = $foundColumn['COLUMN_TYPE'];
+			
+			if (!$existingColName) {
+				$createColumnSQL = "ALTER TABLE $tablename ADD $column $colType;";
+				if(self::$db->query($createColumnSQL)) {
+					echo "Column ". $column . " created successfully\n";
+				}
+				continue;
+			}
+
+			if($existingColName !== $column) {
+				$renameColumnSQL = "ALTER TABLE ". $tablename . " RENAME COLUMN ". $column . " " . $foundColumn . " to " . $column .";"; 
+				if(self::$db->query($renameColumnSQL)) {
+					echo "Column name of successfully updated to: ". $column . "\n";
+				}
+			} 
+			
+			if($existingColType !== strtolower($colType)) {
+				$updateTypeSQL = "ALTER TABLE ". $tablename . " MODIFY COLUMN ". $column . " " . $colType . ";";
+				if(self::$db->query($updateTypeSQL)) {
+					echo "Datatype of column ". $column . " successfully updated to: ". $colType. "\n";
+				}
+			} 
+		}
 	}
 
 	public static function setUniqueColumns(ORMMeta $meta) {
@@ -154,27 +205,18 @@ class Database {
 			$sql = "ALTER TABLE ". $tablename; 
 
 			$fk_contraint_count = 1;
-			// SQL: ALTER TABLE aa
-			// ADD CONSTRAINT fk_aa_to_bb
-			// FOREIGN KEY (a)
-			// REFERENCES bb(ID),
-			// ADD CONSTRAINT fk_aa_to_bb2
-			// FOREIGN KEY (b)
-			// REFERENCES bb(ID2);
 			foreach ($fks as $col => $value) {
 				$sql = $sql . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
 				" FOREIGN KEY ($col)" . 
 				" REFERENCES " . $value["tablename"] . "(" . $value["column"] . "),";  
-				$fk_contraint_count = $fk_contraint_count++;
+				$fk_contraint_count += $fk_contraint_count;
 			}
 			
 			$sql = rtrim($sql, ",");
 			$sql = $sql . ";";
 
-			if (self::$db->query($sql) === TRUE) {
+			if (self::$db->query($sql)) {
 				echo "Set fk contraint(s) successfully\n";
-			} else {
-				echo "Error creating fk constraint(s): " . self::$db->error;
 			}
 		}
 	}
