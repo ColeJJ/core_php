@@ -165,12 +165,10 @@ class Database {
 			$sql = "ALTER TABLE ". $tablename . " "; 
 
 			foreach ($notNullColumns as $col) {
-				// TU: PostgreSQL Query sieht so aus: ALTER COLUMN spaltenname SET NOT NULL; 
 				$sql = $sql . "MODIFY COLUMN " . $col . " " . $columns[$col] . " " . "NOT NULL,";
 			}
 
 			foreach ($nullColumns as $col => $value) {
-				// TU: PostgreSQL Query sieht so aus: ALTER COLUMN spaltenname DROP NOT NULL; 
 				$sql = $sql . "MODIFY COLUMN " . $col . " " . $value . " NULL,";
 			}
 		
