@@ -1,8 +1,8 @@
 <?php
 
-namespace Core;
+namespace ORM;
 
-use Core\Database\ORMMeta;
+use ORM\Database\ORMMeta;
 
 interface BaseModel {
 	public function defineORM(): ORMMeta;

@@ -1,10 +1,10 @@
 <?php
 
-use Core\BaseModel;
-use Core\Database\Database;
-use Model\ModelRessources;
+use ORM\BaseModel;
+use ORM\Database\Database;
+use ORM\ModelRessources;
  
-require_once __DIR__."/../../init.php";
+require_once __DIR__."/../init/init.php";
 
 $modelClasses = ModelRessources::getDefinedModels();
 

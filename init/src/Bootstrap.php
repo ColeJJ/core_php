@@ -2,8 +2,8 @@
 
 // this will be the the initial file to load 
 
-use Core\Autoloader;
-use Core\Database\Database;
+use Init\Autoloader;
+use ORM\Database\Database;
 
 // Autoloader
 Autoloader::registerClasses();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Database;
+namespace ORM\Database;
 
 class SQL {
 	// Data types

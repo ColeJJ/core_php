@@ -1,11 +1,11 @@
 <?php
 
-namespace Model;
+namespace ORM;
 
 class ModelRessources {
 	private static $definedModels = array(
 		\Model\User::class,
-		\Model\Group::class,
+		\Model\Usergroup::class,
 	);
 
 	public static function getDefinedModels() {
