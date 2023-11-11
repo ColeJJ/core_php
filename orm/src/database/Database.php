@@ -3,8 +3,10 @@
 namespace ORM\Database;
 
 use Config\Config;
+use Core\Database\ORMMeta;
 use Exception;
 use mysqli;
+use mysqli_result;
 
 enum CONSTRAINT_PREFIXES: string {
 	case UNIQUE = "unique_";
@@ -12,11 +14,16 @@ enum CONSTRAINT_PREFIXES: string {
 }
 
 class Database {
+	/**
+	 * @var mysqli $db
+	*/
 	private static $db = null;
+	private static $sql = null;
 
 	public function __construct() {
 		if(!self::$db) {
 			$this->connect();
+			self::$sql = new SQL();
 		}
 	}
 
@@ -27,12 +34,22 @@ class Database {
 		}
 	}
 
+	private static function query(): mysqli_result | bool {
+		$sqlCommand = self::$sql->getSQL();
+		return self::$db->query($sqlCommand);
+	}
+
 	private static function getColumnsOfTable(string $tablename): array {
-		$sql = "
-			SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_SCHEMA = '". Config::$DB_DB . "' 
-			AND TABLE_NAME =  '$tablename'";
-		$dbColumns = self::$db->query($sql)->fetch_all(MYSQLI_ASSOC);
+		// $sql = "
+		// 	SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+		// 	WHERE TABLE_SCHEMA = '". Config::$DB_DB . "' 
+		// 	AND TABLE_NAME =  '$tablename'";
+		self::$sql
+			->select(['COLUMN_NAME'])
+			->where('TABLE_SCHEMA', SQL_CONDIITON::EQUAL, Config::$DB_DB)
+			->where('TABLE_NAME', SQL_CONDIITON::EQUAL, $tablename);
+
+		$dbColumns = self::query()->fetch_all(MYSQLI_ASSOC);
 		$dbColumns = array_map(function ($column){
 			return $column['COLUMN_NAME'];
 		}, $dbColumns);
