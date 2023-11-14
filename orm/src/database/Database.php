@@ -22,7 +22,7 @@ class Database {
 
 	public function __construct() {
 		if(!self::$db) {
-			$this->connect();
+			self::connect();
 			self::$sql = new SQL();
 		}
 	}
