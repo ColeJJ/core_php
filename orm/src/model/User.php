@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Models;
+namespace ORM\Model;
 
 use ORM\BaseModel;
 use ORM\Database\ORMMeta;

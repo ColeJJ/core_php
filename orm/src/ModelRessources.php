@@ -4,8 +4,8 @@ namespace ORM;
 
 class ModelRessources {
 	private static $definedModels = array(
-		\Model\User::class,
-		\Model\Usergroup::class,
+		\ORM\Model\User::class,
+		\ORM\Model\Usergroup::class,
 	);
 
 	public static function getDefinedModels() {

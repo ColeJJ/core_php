@@ -1,10 +1,10 @@
 <?php
 
-namespace ORM\Models;
+namespace ORM\Model;
 
-use Core\BaseModel;
-use Core\Database\ORMMeta;
-use Core\Database\SQL;
+use ORM\BaseModel;
+use ORM\Database\ORMMeta;
+use ORM\Database\SQL;
 
 class Usergroup implements BaseModel {
 

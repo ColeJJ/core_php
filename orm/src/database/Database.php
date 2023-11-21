@@ -3,7 +3,7 @@
 namespace ORM\Database;
 
 use Config\Config;
-use Core\Database\ORMMeta;
+use ORM\Database\ORMMeta;
 use Exception;
 use mysqli;
 use mysqli_result;
@@ -46,6 +46,7 @@ class Database {
 		// 	AND TABLE_NAME =  '$tablename'";
 		self::$sql
 			->select(['COLUMN_NAME'])
+			->from('INFORMATION_SCHEMA.COLUMNS')
 			->where('TABLE_SCHEMA', SQL_CONDIITON::EQUAL, Config::$DB_DB)
 			->where('TABLE_NAME', SQL_CONDIITON::EQUAL, $tablename);
 
