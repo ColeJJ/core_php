@@ -110,10 +110,8 @@ class Database {
 				->end();
 
 			$foundColumn = self::query()->fetch_assoc();
-			$existingColName = $foundColumn['COLUMN_NAME'];
-			$existingColType = $foundColumn['COLUMN_TYPE'];
-			
-			if (!$existingColName) {
+
+			if (!$foundColumn) {
 				self::$sql
 					->alter($tablename)
 					->addColumn($column, $colType)
@@ -125,21 +123,18 @@ class Database {
 				continue;
 			}
 
-			if($existingColName !== $column) {
-				// TU!
-				$renameColumnSQL = "ALTER TABLE ". $tablename . " RENAME COLUMN ". $column . " " . $foundColumn . " to " . $column .";"; 
-				if(self::$db->query($renameColumnSQL)) {
-					echo "Column name of successfully updated to: ". $column . "\n";
-				}
-			} 
-			
-			if($existingColType !== strtolower($colType)) {
-				// TU!
-				$updateTypeSQL = "ALTER TABLE ". $tablename . " MODIFY COLUMN ". $column . " " . $colType . ";";
-				if(self::$db->query($updateTypeSQL)) {
+			if ($foundColumn && $foundColumn['COLUMN_TYPE'] !== strtolower($colType)) {
+				// todo: die coltypen haben noch integer längen die in existringColType hier nicht ist
+				self::$sql
+					->alter($tablename)
+					->changeColType($column, $colType)
+					->end();
+
+				if(self::query()) {
 					echo "Datatype of column ". $column . " successfully updated to: ". $colType. "\n";
 				}
-			} 
+			}
+			
 		}
 	}
 

@@ -82,6 +82,16 @@ class SQL {
 		return $this;
 	}
 
+	public function renameColumn(string $newName, string $currentName): SQL {
+		$this->sqlCommand = " RENAME COLUMN ". $newName. " " . $currentName. " to " . $newName; 
+		return $this;
+	}
+
+	public function changeColType(string $column, string $colType): SQL {
+		$this ->sqlCommand .= " MODIFY COLUMN ". $column . " " . $colType;
+		return $this;
+	}
+
 	public function addFk(array $fks, string $tablename): SQL {
 		$fk_contraint_count = 1;
 		foreach ($fks as $col => $value) {
