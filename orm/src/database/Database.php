@@ -167,39 +167,23 @@ class Database {
 
 	public static function setNotNullColumn(ORMMeta $meta) {
 		$tablename = $meta->tablename;
-		$columns = $meta->columns;
-		$notNullColumns = $meta->notNull;
+		$tableColumns = $meta->columns;
+		$notNullColumns = $meta->notNull === null ? [] : $meta->notNull;
 
 		if(!self::checkColumnsExist($meta->columns, $notNullColumns)) {
 			echo "Determined not nullable column not given in table: ". $tablename . ".";
 			return;
 		};
 
-		if($notNullColumns && count($notNullColumns) > 0) {
-			$nullColumns = $columns;
-			foreach ($notNullColumns as $col) {
-				unset($nullColumns[$col]);
-			}
+		self::$sql
+			->alter($tablename)
+			->setNotNull($tableColumns, $notNullColumns)
+			->end();
 
-			// TU!
-			$sql = "ALTER TABLE ". $tablename . " "; 
-
-			foreach ($notNullColumns as $col) {
-				$sql = $sql . "MODIFY COLUMN " . $col . " " . $columns[$col] . " " . "NOT NULL,";
-			}
-
-			foreach ($nullColumns as $col => $value) {
-				$sql = $sql . "MODIFY COLUMN " . $col . " " . $value . " NULL,";
-			}
-		
-			$sql = rtrim($sql, ",");
-			$sql = $sql . ";";
-
-			if (self::$db->query($sql) === TRUE) {
-				echo "Set nullable columns successfully\n";
-			} else {
-				echo "Error setting nullable columns: " . self::$db->error;
-			}
+		if (self::query() === TRUE) {
+			echo "Set nullable columns successfully\n";
+		} else {
+			echo "Error setting nullable columns: " . self::$db->error;
 		}
 	}
 

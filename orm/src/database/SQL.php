@@ -102,6 +102,29 @@ class SQL {
 		return $this;
 	}
 
+	public function setNotNull(array $tableColumns, array $notNullColumns): SQL {
+		$this->setNull($tableColumns, $notNullColumns);
+
+		foreach ($notNullColumns as $col) {
+			$this->sqlCommand .= " MODIFY COLUMN " . $col . " " . $tableColumns[$col] . " NOT NULL,";
+		}
+
+		$this->sqlCommand = rtrim($this->sqlCommand, ",");
+		return $this;
+	}
+
+	// todo: instead of looping over every nullable columns, catch only not null colums which need to be set to nullabled 
+	private function setNull(array $tableColumns, array $notNullColumns): void {
+		$nullableColumns = $tableColumns;
+		foreach ($notNullColumns as $col) {
+			unset($nullableColumns[$col]);
+		}
+
+		foreach ($nullableColumns as $col => $value) {
+			$this->sqlCommand .= " MODIFY COLUMN " . $col . " " . $value . " NULL,";
+		}
+	}
+
 	public function end(): SQL {
 		$this->sqlCommand = rtrim($this->sqlCommand, " ");
 		$this->sqlCommand .= ";";
