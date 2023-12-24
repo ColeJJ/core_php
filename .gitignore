@@ -1,4 +1,4 @@
 .DS_STORE
 /vendor/
-./todo.md
-./node_modules
+node_modules
+git
