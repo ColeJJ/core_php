@@ -34,21 +34,18 @@ class Database {
 		}
 	}
 
-	private static function query(): mysqli_result | bool {
+	private static function query($resultMode = MYSQLI_STORE_RESULT): mysqli_result | bool {
 		$sqlCommand = self::$sql->getSQL();
-		return self::$db->query($sqlCommand);
+		return self::$db->query($sqlCommand, $resultMode);
 	}
 
 	private static function getColumnsOfTable(string $tablename): array {
-		// $sql = "
-		// 	SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-		// 	WHERE TABLE_SCHEMA = '". Config::$DB_DB . "' 
-		// 	AND TABLE_NAME =  '$tablename'";
 		self::$sql
 			->select(['COLUMN_NAME'])
 			->from('INFORMATION_SCHEMA.COLUMNS')
 			->where('TABLE_SCHEMA', SQL_CONDIITON::EQUAL, Config::$DB_DB)
-			->where('TABLE_NAME', SQL_CONDIITON::EQUAL, $tablename);
+			->and('TABLE_NAME', SQL_CONDIITON::EQUAL, $tablename)
+			->end();
 
 		$dbColumns = self::query()->fetch_all(MYSQLI_ASSOC);
 		$dbColumns = array_map(function ($column){
@@ -90,7 +87,6 @@ class Database {
 			echo "Checked and created Table ". $tablename . " successfully if not exists.\n";
 		}
 
-		// compare columns in DB with $meta columns -> delete alle, die nicht enthalten sind
 		$deleteColumns = self::getDeletableColumns($tablename, $columns);
 		if($deleteColumns) {
 			$deleteSQL = "ALTER TABLE $tablename DROP COLUMN";
@@ -105,12 +101,20 @@ class Database {
 		}
 
 		foreach ($columns as $column => $colType) {
-			$columnSQL = "SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$tablename' AND TABLE_SCHEMA = '". Config::$DB_DB . "' AND COLUMN_NAME = '$column';";
-			$foundColumn = self::$db->query($columnSQL)->fetch_assoc();
+			self::$sql
+				->select(['COLUMN_NAME', 'COLUMN_TYPE'])
+				->from('INFORMATION_SCHEMA.COLUMNS')
+				->where('TABLE_NAME', SQL_CONDIITON::EQUAL, $tablename)
+				->and('TABLE_SCHEMA', SQL_CONDIITON::EQUAL, Config::$DB_DB)
+				->and('COLUMN_NAME', SQL_CONDIITON::EQUAL, $column)
+				->end();
+
+			$foundColumn = self::query()->fetch_assoc();
 			$existingColName = $foundColumn['COLUMN_NAME'];
 			$existingColType = $foundColumn['COLUMN_TYPE'];
 			
 			if (!$existingColName) {
+				// TU!
 				$createColumnSQL = "ALTER TABLE $tablename ADD $column $colType;";
 				if(self::$db->query($createColumnSQL)) {
 					echo "Column ". $column . " created successfully\n";
@@ -119,6 +123,7 @@ class Database {
 			}
 
 			if($existingColName !== $column) {
+				// TU!
 				$renameColumnSQL = "ALTER TABLE ". $tablename . " RENAME COLUMN ". $column . " " . $foundColumn . " to " . $column .";"; 
 				if(self::$db->query($renameColumnSQL)) {
 					echo "Column name of successfully updated to: ". $column . "\n";
@@ -126,6 +131,7 @@ class Database {
 			} 
 			
 			if($existingColType !== strtolower($colType)) {
+				// TU!
 				$updateTypeSQL = "ALTER TABLE ". $tablename . " MODIFY COLUMN ". $column . " " . $colType . ";";
 				if(self::$db->query($updateTypeSQL)) {
 					echo "Datatype of column ". $column . " successfully updated to: ". $colType. "\n";
@@ -145,7 +151,7 @@ class Database {
 		self::deleteConstraintsIfGiven($tablename, SQL::CONSTRAINT_TYPE_UNIQUE);
 		
 		if($uniqueCols && count($uniqueCols) > 0) {
-			// add new updated unique constraint
+			// TU!
 			$sql = "ALTER TABLE ". $tablename . " ADD CONSTRAINT unique_". $tablename . " UNIQUE ("; 
 
 			foreach ($uniqueCols as $col) {
@@ -179,7 +185,7 @@ class Database {
 				unset($nullColumns[$col]);
 			}
 
-			// add new updated unique constraint
+			// TU!
 			$sql = "ALTER TABLE ". $tablename . " "; 
 
 			foreach ($notNullColumns as $col) {
@@ -205,41 +211,32 @@ class Database {
 		$tablename = $meta->tablename;
 		$fks = $meta->fk;
 
-		if(!$fks) {
-			return;
-		}
-
-		if(!self::checkColumnsExist($meta->columns, array_keys($fks))) {
-			echo "Determined fk column not given in table: ". $tablename . ".";
-			return;
-		};
-
 		self::deleteConstraintsIfGiven($tablename, SQL::CONSTRAINT_TYPE_FK);
-		
-		if(count($fks) > 0) {
-			// add new updated unique constraint
-			$sql = "ALTER TABLE ". $tablename; 
 
-			$fk_contraint_count = 1;
-			foreach ($fks as $col => $value) {
-				$sql = $sql . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
-				" FOREIGN KEY ($col)" . 
-				" REFERENCES " . $value["tablename"] . "(" . $value["column"] . "),";  
-				$fk_contraint_count += $fk_contraint_count;
-			}
-			
-			$sql = rtrim($sql, ",");
-			$sql = $sql . ";";
+		if($fks) {
+			if(!self::checkColumnsExist($meta->columns, array_keys($fks))) {
+				echo "Determined fk column not given in table: ". $tablename . ".";
+				return;
+			};
 
-			if (self::$db->query($sql)) {
+			self::$sql->alter($tablename)->addFk($fks, $tablename)->end();
+
+			if (self::query() === TRUE) {
 				echo "Set fk contraint(s) successfully\n";
 			}
 		}
 	}
 
 	private static function deleteConstraintsIfGiven(string $tablename, string $constraint_type) {
-		$constraint_sql = "SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = '$constraint_type' AND TABLE_NAME = '$tablename' AND TABLE_SCHEMA = '". Config::$DB_DB."'";
-		$foundConstraints = self::$db->query($constraint_sql, MYSQLI_USE_RESULT)->fetch_all(MYSQLI_ASSOC);
+		self::$sql
+			->select(['CONSTRAINT_NAME', 'CONSTRAINT_TYPE'])
+			->from('INFORMATION_SCHEMA.TABLE_CONSTRAINTS')
+			->where('CONSTRAINT_TYPE', SQL_CONDIITON::EQUAL, $constraint_type)
+			->and('TABLE_NAME', SQL_CONDIITON::EQUAL, $tablename)
+			->and('TABLE_SCHEMA', SQL_CONDIITON::EQUAL, Config::$DB_DB)
+			->end();
+
+		$foundConstraints = self::query(MYSQLI_USE_RESULT)->fetch_all(MYSQLI_ASSOC);
 
 		if ($foundConstraints) {
 			foreach ($foundConstraints as $constraint) {

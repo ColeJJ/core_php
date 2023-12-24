@@ -3,9 +3,9 @@
 namespace ORM\Database;
 
 class ORMMeta {
-	public $tablename;
-	public $columns;
-	public $unique;
-	public $notNull;
-	public $fk;
+	public ?string $tablename = null;
+	public ?array $columns = null;
+	public ?array $unique = null;
+	public ?array $notNull = null;
+	public ?array $fk = null;
 }

@@ -21,9 +21,7 @@ class User implements BaseModel {
 		];
 		$meta->unique = ["email"];
 		$meta->notNull = ["username", "password"]; 
-		$meta->fk = [
-			"groupID" => ["tablename" => "usergroups", "column" => "id"], 
-		];
+		$meta->fk = [];
 
 		return $meta;
 	}

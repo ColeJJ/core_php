@@ -35,6 +35,13 @@ class SQL {
 			$this->sqlCommand .= $col . ', ';
 		}
 
+		$this->sqlCommand = rtrim($this->sqlCommand, ", ");
+		$this->sqlCommand .= " ";
+		return $this;
+	}
+
+	public function alter(string $tablename): SQL {
+		$this->sqlCommand = "ALTER TABLE " . $tablename;	
 		return $this;
 	}
 
@@ -44,7 +51,7 @@ class SQL {
 	}
 
 	public function where(string $column, SQL_CONDIITON $condition, $value): SQL {
-		$this->sqlCommand .= "WHERE $column $condition->value";
+		$this->sqlCommand .= "WHERE $column $condition->value ";
 
 		if(is_string($value)) {
 			$this->sqlCommand .= "'" . $value . "' ";
@@ -54,9 +61,15 @@ class SQL {
 		return $this;
 	}
 
-	public function and(): SQL {
-		$this->sqlCommand .= "AND "; 
-		return $this;
+	public function and(string $column, SQL_CONDIITON $condition, $value): SQL {
+	$this->sqlCommand .= "AND $column $condition->value ";
+
+		if(is_string($value)) {
+			$this->sqlCommand .= "'" . $value . "' ";
+		} else {
+			$this->sqlCommand .= "$value ";
+		}
+		return $this;	
 	}
 
 	public function or(): SQL {
@@ -64,7 +77,26 @@ class SQL {
 		return $this;
 	}
 
+	// public function addConstraint(string $constraintPrefix, string $tablename) {
+	// 	$this->sqlCommand .= ;
+	// 	$sql = $sql . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
+	// 	return $this;
+	// }
+
+	public function addFk(array $fks, string $tablename) {
+		$fk_contraint_count = 1;
+		foreach ($fks as $col => $value) {
+			$this->sqlCommand = $this->sqlCommand . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
+				" FOREIGN KEY ($col)" . 
+				" REFERENCES " . $value["tablename"] . "(" . $value["column"] . "),";  
+			$fk_contraint_count += $fk_contraint_count;
+		}
+		$this->sqlCommand = rtrim($this->sqlCommand, ",");
+		return $this;
+	}
+
 	public function end(): SQL {
+		$this->sqlCommand = rtrim($this->sqlCommand, " ");
 		$this->sqlCommand .= ";";
 		return $this;
 	}
