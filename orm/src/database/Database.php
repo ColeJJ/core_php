@@ -148,20 +148,16 @@ class Database {
 			echo "Determined unique column not given in table: ". $tablename . ".";
 			return;
 		};
+
 		self::deleteConstraintsIfGiven($tablename, SQL::CONSTRAINT_TYPE_UNIQUE);
 		
-		if($uniqueCols && count($uniqueCols) > 0) {
-			// TU!
-			$sql = "ALTER TABLE ". $tablename . " ADD CONSTRAINT unique_". $tablename . " UNIQUE ("; 
+		if($uniqueCols) {
+			self::$sql
+				->alter($tablename)
+				->addUnique($tablename, $uniqueCols)
+				->end();
 
-			foreach ($uniqueCols as $col) {
-				$sql = $sql . $col . ",";
-			}
-			
-			$sql = rtrim($sql, ",");
-			$sql = $sql . ");";
-
-			if (self::$db->query($sql) === TRUE) {
+			if (self::query() === TRUE) {
 				echo "Set unique contraint successfully\n";
 			} else {
 				echo "Error creating unique constraint: " . self::$db->error;

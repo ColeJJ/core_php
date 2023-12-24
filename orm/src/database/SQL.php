@@ -77,13 +77,7 @@ class SQL {
 		return $this;
 	}
 
-	// public function addConstraint(string $constraintPrefix, string $tablename) {
-	// 	$this->sqlCommand .= ;
-	// 	$sql = $sql . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
-	// 	return $this;
-	// }
-
-	public function addFk(array $fks, string $tablename) {
+	public function addFk(array $fks, string $tablename): SQL {
 		$fk_contraint_count = 1;
 		foreach ($fks as $col => $value) {
 			$this->sqlCommand = $this->sqlCommand . " ADD CONSTRAINT ". CONSTRAINT_PREFIXES::FK->value . $tablename . "_" . $fk_contraint_count .  
@@ -92,6 +86,19 @@ class SQL {
 			$fk_contraint_count += $fk_contraint_count;
 		}
 		$this->sqlCommand = rtrim($this->sqlCommand, ",");
+		return $this;
+	}
+
+	public function addUnique(string $tablename, array $uniqueCols): SQL {
+		$this->sqlCommand .= " ADD CONSTRAINT unique_". $tablename . " UNIQUE ("; 
+
+		foreach ($uniqueCols as $col) {
+			$this->sqlCommand .= $col . ",";
+		}
+
+		$this->sqlCommand = rtrim($this->sqlCommand, ",");
+		$this->sqlCommand= $this->sqlCommand. ")";
+
 		return $this;
 	}
 
