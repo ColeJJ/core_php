@@ -114,9 +114,12 @@ class Database {
 			$existingColType = $foundColumn['COLUMN_TYPE'];
 			
 			if (!$existingColName) {
-				// TU!
-				$createColumnSQL = "ALTER TABLE $tablename ADD $column $colType;";
-				if(self::$db->query($createColumnSQL)) {
+				self::$sql
+					->alter($tablename)
+					->addColumn($column, $colType)
+					->end();
+
+				if(self::query() === TRUE) {
 					echo "Column ". $column . " created successfully\n";
 				}
 				continue;

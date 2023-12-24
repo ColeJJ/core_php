@@ -77,6 +77,11 @@ class SQL {
 		return $this;
 	}
 
+	public function addColumn(string $columnName, $columnType) {
+		$this->sqlCommand .= " ADD $columnName $columnType";
+		return $this;
+	}
+
 	public function addFk(array $fks, string $tablename): SQL {
 		$fk_contraint_count = 1;
 		foreach ($fks as $col => $value) {
@@ -102,11 +107,13 @@ class SQL {
 		return $this;
 	}
 
-	public function setNotNull(array $tableColumns, array $notNullColumns): SQL {
+	public function setNotNull(array $tableColumns = [], array $notNullColumns = []): SQL {
 		$this->setNull($tableColumns, $notNullColumns);
 
-		foreach ($notNullColumns as $col) {
-			$this->sqlCommand .= " MODIFY COLUMN " . $col . " " . $tableColumns[$col] . " NOT NULL,";
+		if ($notNullColumns) {
+			foreach ($notNullColumns as $col) {
+				$this->sqlCommand .= " MODIFY COLUMN " . $col . " " . $tableColumns[$col] . " NOT NULL,";
+			}
 		}
 
 		$this->sqlCommand = rtrim($this->sqlCommand, ",");
