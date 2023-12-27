@@ -16,6 +16,7 @@ class SQL {
 	}
 
 	// Data types
+	// todo: export this into a seperate enum or class 
 	public const VARCHAR30 = "VARCHAR(30)";
 	public const VARCHAR50 = "VARCHAR(50)";
 	public const INT = "INT";
