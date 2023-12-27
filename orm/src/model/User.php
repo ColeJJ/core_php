@@ -16,7 +16,7 @@ class User implements BaseModel {
 			"username" => SQL::VARCHAR30,
 			"password" => SQL::VARCHAR30,
 			"email" => SQL::VARCHAR30,
-			"groupID" => SQL::INT60_UNSIGNED,
+			"groupID" => SQL::INT_UNSIGNED,
 		];
 		$meta->unique = ["email"];
 		$meta->notNull = ["username", "password"]; 

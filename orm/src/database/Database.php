@@ -124,7 +124,6 @@ class Database {
 			}
 
 			if ($foundColumn && $foundColumn['COLUMN_TYPE'] !== strtolower($colType)) {
-				// todo: die coltypen haben noch integer längen die in existringColType hier nicht ist
 				self::$sql
 					->alter($tablename)
 					->changeColType($column, $colType)
