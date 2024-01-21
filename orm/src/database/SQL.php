@@ -2,6 +2,7 @@
 
 namespace ORM\Database;
 
+
 enum SQL_CONDIITON: string {
 	case EQUAL = "=";
 	case UNEQUAL = "!=";
@@ -130,7 +131,6 @@ class SQL {
 		return $this;
 	}
 
-	// todo: instead of looping over every nullable columns, catch only not null colums which need to be set to nullabled 
 	private function setNull(array $tableColumns, array $notNullColumns): void {
 		$nullableColumns = $tableColumns;
 		foreach ($notNullColumns as $col) {

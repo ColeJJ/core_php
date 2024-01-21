@@ -167,15 +167,11 @@ class Database {
 		$tableColumns = $meta->columns;
 		$notNullColumns = $meta->notNull === null ? [] : $meta->notNull;
 
+
 		if(!self::checkColumnsExist($meta->columns, $notNullColumns)) {
 			echo "Determined not nullable column not given in table: ". $tablename . ".";
 			return;
 		};
-
-		self::$sql
-			->alter($tablename)
-			->setNotNull($tableColumns, $notNullColumns)
-			->end();
 
 		if (self::query() === TRUE) {
 			echo "Set nullable columns successfully\n";
