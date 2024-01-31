@@ -233,6 +233,8 @@ class Database {
 		return in_array($column, array_keys($columns));
 	}
 
+	private function test() {}
+
 	private static function checkColumnsExist(array $columns, array|null $needleColumns): bool {
 		if($needleColumns) {
 			foreach ($needleColumns as $col) {
