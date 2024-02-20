@@ -1,21 +1,19 @@
 <?php
 
-namespace ORM\Model;
+namespace ORM\Models;
 
-use ORM\BaseModel;
 use ORM\Database\ORMMeta;
 use ORM\Database\SQL;
+use ORM\Model;
 
-class Usergroup implements BaseModel {
+class Usergroup extends Model {
 
-	public function defineORM(): ORMMeta
+	public function defineORM(): void 
 	{
 		$meta = new ORMMeta();
 		$meta->tablename = "usergroups";
 		$meta->columns = [
 			"test" => SQL::VARCHAR30,
 		];
-
-		return $meta;
 	}
 }
