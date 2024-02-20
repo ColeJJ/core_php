@@ -8,7 +8,5 @@
             "email": "torben.unland@gmail.com"
         }
     ],
-    "require": {
-        "illuminate/database": "^10.16"
-    }
+    "require": {}
 }
