@@ -3,12 +3,12 @@
 namespace ORM;
 
 class ModelRessources {
-	private static $definedModels = array(
-		\ORM\Model\User::class,
-		\ORM\Model\Usergroup::class,
+	private static array $definedModels = array(
+		\ORM\Models\User::class,
+		\ORM\Models\UserGroup::class,
 	);
 
-	public static function getDefinedModels() {
+	public static function getDefinedModels(): array {
 		return self::$definedModels; 
 	}
 }
