@@ -34,6 +34,11 @@ class Database {
 		}
 	}
 
+	// todo: security issue with this being public?
+	public function querySQL(string $sql): mysqli_result | bool {
+		return self::$db->query($sql);
+	}
+
 	private static function query($resultMode = MYSQLI_STORE_RESULT): mysqli_result | bool {
 		$sqlCommand = self::$sql->getSQL();
 		return self::$db->query($sqlCommand, $resultMode);
