@@ -2,7 +2,6 @@
 
 namespace ORM\Database;
 
-
 enum SQL_CONDIITON: string {
 	case EQUAL = "=";
 	case UNEQUAL = "!=";
