@@ -18,10 +18,10 @@ abstract class Model {
 
 	public abstract function defineORM(): void;
 
-	protected function get(string $tablename) {
+	protected function get(string $tablename): array|false|null {
 		$sql = new SQL();
 		$sql->select(['*'])->from($tablename)->end();
-		$this->db->querySQL($sql->getSQL());
+		return $this->db->querySQL($sql->getSQL());
 	}
 
 	public function save(): bool {

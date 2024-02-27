@@ -35,9 +35,9 @@ class Database {
 		}
 	}
 
-	// todo: security issue with this being public?
-	public function querySQL(string $sql): mysqli_result | bool {
-		return self::$db->query($sql);
+	public function querySQL(string $sql): array|false|null {
+		$resp = self::$db->query($sql)->fetch_all();
+		return $resp;
 	}
 
 	private static function query($resultMode = MYSQLI_STORE_RESULT): mysqli_result | bool {

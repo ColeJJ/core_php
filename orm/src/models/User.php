@@ -2,6 +2,7 @@
 
 namespace ORM\Models;
 
+use mysqli_result;
 use ORM\Database\ORMMeta;
 use ORM\Database\SQL;
 use ORM\Model;
@@ -35,8 +36,8 @@ class User extends Model {
 		];
 	}
 
-	public function getUsers() {
-		$this->get($this->meta->tablename);
+	public function getUsers(): array|false|null {
+		return $this->get($this->meta->tablename);
 	}
 
 	public function create() {
