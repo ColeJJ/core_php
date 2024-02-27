@@ -11,10 +11,10 @@ class Autoloader {
 			self::register($class);
 		});
 
-		$classes = ModelRessources::getDefinedModels();
+		$models = ModelRessources::getDefinedModels();
 
-		foreach ($classes as $class) {
-			self::register($class);
+		foreach ($models as $modelClass) {
+			self::register($modelClass);
 		}
 
 	}	
