@@ -7,6 +7,7 @@ use ORM\Database\ORMMeta;
 use Exception;
 use mysqli;
 use mysqli_result;
+use ORM\Model;
 
 enum CONSTRAINT_PREFIXES: string {
 	case UNIQUE = "unique_";
@@ -43,6 +44,20 @@ class Database {
 		$sqlCommand = self::$sql->getSQL();
 		return self::$db->query($sqlCommand, $resultMode);
 	}
+
+	public function save(Model $model, string $tablename, array $cols): bool {
+		self::$sql
+			->insert($tablename, $cols, $model->getModelAttributesAsArray())
+			->end();
+
+		if (self::query()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	// ORM
 
 	private static function getColumnsOfTable(string $tablename): array {
 		self::$sql

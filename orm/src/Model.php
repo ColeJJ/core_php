@@ -23,4 +23,10 @@ abstract class Model {
 		$sql->select(['*'])->from($tablename)->end();
 		$this->db->querySQL($sql->getSQL());
 	}
+
+	public function save(): bool {
+		return $this->db->save($this, $this->meta->tablename, array_keys($this->meta->columns));
+	}
+
+	public abstract function getModelAttributesAsArray(): array;
 }

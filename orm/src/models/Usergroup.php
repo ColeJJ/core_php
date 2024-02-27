@@ -16,4 +16,10 @@ class Usergroup extends Model {
 			"test" => SQL::VARCHAR30,
 		];
 	}
+
+	public function getModelAttributesAsArray(): array
+	{
+		// todo
+		return [];
+	}
 }

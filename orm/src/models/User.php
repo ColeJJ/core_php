@@ -7,6 +7,11 @@ use ORM\Database\SQL;
 use ORM\Model;
 
 class User extends Model {
+	public string $username;
+	public string $password;
+	public string $email;
+	public int $groupID;
+
 	public function defineORM(): void {
 		$this->meta = new ORMMeta();
 		$this->meta->tablename = "users";
@@ -19,6 +24,15 @@ class User extends Model {
 		$this->meta->unique = ["email"];
 		$this->meta->notNull = ["username", "password"]; 
 		$this->meta->fk = [];
+	}
+
+	public function getModelAttributesAsArray(): array {
+		return [
+			'username' => $this->username ?? null,
+			'password' => $this->password ?? null,
+			'email' => $this->email ?? null,
+			'groupID' => $this->groupID ?? null,
+		];
 	}
 
 	public function getUsers() {

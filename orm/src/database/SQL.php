@@ -146,4 +146,32 @@ class SQL {
 		$this->sqlCommand .= ";";
 		return $this;
 	}
+
+	public function insert(string $tablename, array $cols, array $values): SQL {
+		$this->sqlCommand = "INSERT INTO " . $tablename . " (";
+
+		$sqlValues = '(';
+
+		foreach ($cols as $col) {
+			$this->sqlCommand .= $col . ",";
+
+			if ($values[$col]) {
+				if (is_string($values[$col])) {
+					$sqlValues .= "'$values[$col]'" . ",";
+					continue;
+				}
+
+				$sqlValues .= $values[$col] . ",";
+				continue;
+			}
+
+			$sqlValues .= "null,";
+		}
+
+		$this->sqlCommand = rtrim($this->sqlCommand, ",") . ")";
+		$sqlValues = rtrim($sqlValues, ",") . ")";
+		$this->sqlCommand .= " VALUES " . $sqlValues;
+
+		return $this;
+	}
 }

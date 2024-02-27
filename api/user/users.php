@@ -4,7 +4,6 @@ use ORM\Models\User;
 
 $request_method = $_SERVER['REQUEST_METHOD'];
 
-// todo: we somehow need to require this here.. but i do not want that
 require_once __DIR__."/../../init/init.php";
 
 if ($request_method != 'GET') {
