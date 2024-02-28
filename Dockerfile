@@ -3,4 +3,4 @@ WORKDIR /var/www/html/
 COPY ./* /var/www/html/
 
 # extensions
-RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install mysqli && a2enmod rewrite
