@@ -29,7 +29,7 @@ class Database {
 	}
 
 	private static function connect() {
-		self::$db = new mysqli(Config::$DB_HOST, Config::$DB_USER, Config::$DB_PASSWORD, Config::$DB_DB);
+		self::$db = new mysqli(Config::$DB_HOST, Config::$DB_USER, Config::$DB_PASSWORD, Config::$DB_DB, Config::$DB_PORT);
 		if(self::$db->connect_error) {
 			throw new Exception("Could not connect to mysql db.", 1);
 		}
@@ -153,21 +153,21 @@ class Database {
 					echo "Datatype of column ". $column . " successfully updated to: ". $colType. "\n";
 				}
 			}
-			
+
 		}
 	}
 
 	public static function setUniqueColumns(ORMMeta $meta) {
 		$tablename = $meta->tablename;
 		$uniqueCols = $meta->unique;
-		
+
 		if(!self::checkColumnsExist($meta->columns, $uniqueCols)) {
 			echo "Determined unique column not given in table: ". $tablename . ".";
 			return;
 		};
 
 		self::deleteConstraintsIfGiven($tablename, SQL::CONSTRAINT_TYPE_UNIQUE);
-		
+
 		if($uniqueCols) {
 			self::$sql
 				->alter($tablename)
@@ -237,9 +237,9 @@ class Database {
 				$constraintType = $constraint['CONSTRAINT_TYPE'];
 
 				if($constraintType === SQL::CONSTRAINT_TYPE_FK) {
-					$delete_sql = "ALTER TABLE ". $tablename . " DROP FOREIGN KEY " . $constraintName .";";	
+					$delete_sql = "ALTER TABLE ". $tablename . " DROP FOREIGN KEY " . $constraintName .";";
 				} else {
-					$delete_sql = "ALTER TABLE ". $tablename . " DROP KEY " . $constraintName .";";	
+					$delete_sql = "ALTER TABLE ". $tablename . " DROP KEY " . $constraintName .";";
 				}
 
 				if(self::$db->query($delete_sql) === TRUE) {
