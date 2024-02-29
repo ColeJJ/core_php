@@ -1,2 +1,2 @@
 RewriteEngine On
-RewriteRule ^api/(.*)$ api/Api.php
+RewriteRule ^api/(.*)$ api/src/Api.php
